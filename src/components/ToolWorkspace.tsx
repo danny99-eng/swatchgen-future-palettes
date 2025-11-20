@@ -2,10 +2,22 @@ import { useState } from "react";
 import { Home, Palette, Waves, Type, Bookmark, Upload, Share2, ImageDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import ImageUpload from "./ImageUpload";
 import ColorSwatch from "./ColorSwatch";
 import { extractColors, generateWarmPalette, generateCoolPalette, exportPaletteAsPNG, type ColorData } from "@/lib/colorExtraction";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const navItems = [
   { icon: Home, label: "Home", id: "home" },
@@ -16,18 +28,61 @@ const navItems = [
 ];
 
 const ToolWorkspace = () => {
+  const { user, profile, refreshProfile } = useAuth();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("palettes");
   const [colors, setColors] = useState<ColorData[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const checkPaletteLimit = async () => {
+    if (!user || !profile) {
+      navigate('/auth');
+      return false;
+    }
+
+    // Admin and premium have unlimited
+    if (profile.role === 'admin' || profile.role === 'premium') {
+      return true;
+    }
+
+    // Free users limited to 3 per day
+    if (profile.palettesToday >= 3) {
+      setShowUpgradeModal(true);
+      return false;
+    }
+
+    return true;
+  };
+
+  const incrementPaletteCount = async () => {
+    if (!user || !profile || profile.role !== 'free') return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ palettes_today: profile.palettesToday + 1 })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      await refreshProfile();
+    } catch (error) {
+      console.error('Error updating palette count:', error);
+    }
+  };
 
   const handleImageUpload = async (file: File) => {
+    const canProceed = await checkPaletteLimit();
+    if (!canProceed) return;
+
     setIsProcessing(true);
     setUploadedImage(file);
     
     try {
       const extractedColors = await extractColors(file, 5);
       setColors(extractedColors);
+      await incrementPaletteCount();
       toast.success(`Extracted ${extractedColors.length} colors!`);
     } catch (error) {
       toast.error('Failed to extract colors');
@@ -37,7 +92,12 @@ const ToolWorkspace = () => {
     }
   };
 
-  const handleWarmPalette = () => {
+  const handleWarmPalette = async () => {
+    if (!profile || (profile.role === 'free')) {
+      toast.error('Warm/Cool palette generation is a premium feature');
+      setShowUpgradeModal(true);
+      return;
+    }
     if (colors.length === 0) {
       toast.error('Upload an image first');
       return;
@@ -47,7 +107,12 @@ const ToolWorkspace = () => {
     toast.success('Generated warm palette!');
   };
 
-  const handleCoolPalette = () => {
+  const handleCoolPalette = async () => {
+    if (!profile || (profile.role === 'free')) {
+      toast.error('Warm/Cool palette generation is a premium feature');
+      setShowUpgradeModal(true);
+      return;
+    }
     if (colors.length === 0) {
       toast.error('Upload an image first');
       return;
@@ -58,6 +123,11 @@ const ToolWorkspace = () => {
   };
 
   const handleExportPNG = () => {
+    if (!profile || (profile.role === 'free')) {
+      toast.error('PNG export is a premium feature');
+      setShowUpgradeModal(true);
+      return;
+    }
     if (colors.length === 0) {
       toast.error('No palette to export');
       return;
@@ -83,16 +153,42 @@ const ToolWorkspace = () => {
   };
 
   return (
-    <section id="workspace" className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background scroll-mt-20">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-12 animate-fade-in-up">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Interactive Workspace
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Experience the full power of SwatchGen's design tools
-          </p>
-        </div>
+    <>
+      <AlertDialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Upgrade to Premium</AlertDialogTitle>
+            <AlertDialogDescription>
+              {profile?.role === 'free' && profile.palettesToday >= 3
+                ? "You've reached your daily limit of 3 palettes. Upgrade to Premium for unlimited palette generation!"
+                : "This is a premium feature. Upgrade to Premium to unlock unlimited palettes, warm/cool generators, PNG exports, and AI typography suggestions."}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowUpgradeModal(false)}>
+              Got it
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <section id="workspace" className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background scroll-mt-20">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-center mb-12 animate-fade-in-up">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+              Interactive Workspace
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Experience the full power of SwatchGen's design tools
+            </p>
+            {profile && (
+              <p className="text-sm text-muted-foreground mt-2">
+                {profile.role === 'free' 
+                  ? `Free Plan: ${profile.palettesToday}/3 palettes used today`
+                  : `${profile.role.charAt(0).toUpperCase() + profile.role.slice(1)} Plan: Unlimited`}
+              </p>
+            )}
+          </div>
 
         <div className="glass-card overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <div className="flex flex-col lg:flex-row min-h-[600px]">
@@ -252,9 +348,10 @@ const ToolWorkspace = () => {
               )}
             </div>
           </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 };
 
