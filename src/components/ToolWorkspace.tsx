@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { Home, Palette, Waves, Type, Bookmark, Upload, Copy, Check } from "lucide-react";
+import { Home, Palette, Waves, Type, Bookmark, Upload, Share2, ImageDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import ImageUpload from "./ImageUpload";
+import ColorSwatch from "./ColorSwatch";
+import { extractColors, generateWarmPalette, generateCoolPalette, exportPaletteAsPNG, type ColorData } from "@/lib/colorExtraction";
+import { toast } from "sonner";
 
 const navItems = [
   { icon: Home, label: "Home", id: "home" },
@@ -11,25 +15,75 @@ const navItems = [
   { icon: Bookmark, label: "Saved", id: "saved" },
 ];
 
-const samplePalette = [
-  { hex: "#2563EB", rgb: "37, 99, 235", name: "Electric Blue" },
-  { hex: "#7C3AED", rgb: "124, 58, 237", name: "Soft Purple" },
-  { hex: "#E5E7EB", rgb: "229, 231, 235", name: "Cool Gray" },
-  { hex: "#111111", rgb: "17, 17, 17", name: "Deep Black" },
-];
-
 const ToolWorkspace = () => {
   const [activeTab, setActiveTab] = useState("palettes");
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [colors, setColors] = useState<ColorData[]>([]);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
-  const handleCopy = (hex: string, index: number) => {
-    navigator.clipboard.writeText(hex);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
+  const handleImageUpload = async (file: File) => {
+    setIsProcessing(true);
+    setUploadedImage(file);
+    
+    try {
+      const extractedColors = await extractColors(file, 5);
+      setColors(extractedColors);
+      toast.success(`Extracted ${extractedColors.length} colors!`);
+    } catch (error) {
+      toast.error('Failed to extract colors');
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleWarmPalette = () => {
+    if (colors.length === 0) {
+      toast.error('Upload an image first');
+      return;
+    }
+    const warmColors = generateWarmPalette(colors);
+    setColors(warmColors);
+    toast.success('Generated warm palette!');
+  };
+
+  const handleCoolPalette = () => {
+    if (colors.length === 0) {
+      toast.error('Upload an image first');
+      return;
+    }
+    const coolColors = generateCoolPalette(colors);
+    setColors(coolColors);
+    toast.success('Generated cool palette!');
+  };
+
+  const handleExportPNG = () => {
+    if (colors.length === 0) {
+      toast.error('No palette to export');
+      return;
+    }
+    try {
+      exportPaletteAsPNG(colors, `swatchgen-palette-${Date.now()}.png`);
+      toast.success('Palette exported!');
+    } catch (error) {
+      toast.error('Failed to export palette');
+      console.error(error);
+    }
+  };
+
+  const handleShareLink = () => {
+    if (colors.length === 0) {
+      toast.error('No palette to share');
+      return;
+    }
+    const paletteData = colors.map(c => c.hex.slice(1)).join('-');
+    const shareUrl = `${window.location.origin}/palette/${paletteData}`;
+    navigator.clipboard.writeText(shareUrl);
+    toast.success('Share link copied!');
   };
 
   return (
-    <section className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background">
+    <section id="workspace" className="py-24 px-4 bg-gradient-to-b from-muted/30 to-background scroll-mt-20">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -69,60 +123,61 @@ const ToolWorkspace = () => {
                 <div className="space-y-6">
                   <div className="flex items-center justify-between">
                     <h3 className="text-2xl font-semibold">Color Palette</h3>
-                    <Button>
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Image
-                    </Button>
                   </div>
+
+                  {/* Upload Area */}
+                  <ImageUpload 
+                    onImageUpload={handleImageUpload} 
+                    isProcessing={isProcessing}
+                  />
 
                   {/* Color Swatches */}
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {samplePalette.map((color, index) => (
-                      <div
-                        key={index}
-                        className="glass-card p-4 space-y-3 hover-lift"
-                      >
-                        <div
-                          className="h-32 rounded-xl shadow-md"
-                          style={{ backgroundColor: color.hex }}
-                        />
-                        <div className="space-y-2">
-                          <p className="font-semibold text-sm">{color.name}</p>
-                          <div className="flex items-center justify-between">
-                            <code className="text-sm text-muted-foreground">
-                              {color.hex}
-                            </code>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => handleCopy(color.hex, index)}
-                            >
-                              {copiedIndex === index ? (
-                                <Check className="w-4 h-4 text-green-500" />
-                              ) : (
-                                <Copy className="w-4 h-4" />
-                              )}
-                            </Button>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            RGB: {color.rgb}
-                          </p>
-                        </div>
+                  {colors.length > 0 && (
+                    <>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                        {colors.map((color, index) => (
+                          <ColorSwatch
+                            key={index}
+                            hex={color.hex}
+                            rgb={color.rgb}
+                            name={color.name}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
 
-                  {/* Actions */}
-                  <div className="flex flex-wrap gap-3 pt-4">
-                    <Button className="bg-orange-500 hover:bg-orange-600">
-                      Generate Warm Palette
-                    </Button>
-                    <Button className="bg-blue-500 hover:bg-blue-600">
-                      Generate Cool Palette
-                    </Button>
-                    <Button variant="outline">Download PNG</Button>
-                    <Button variant="outline">Share Link</Button>
-                  </div>
+                      {/* Actions */}
+                      <div className="flex flex-wrap gap-3 pt-4">
+                        <Button 
+                          className="bg-orange-500 hover:bg-orange-600 text-white"
+                          onClick={handleWarmPalette}
+                        >
+                          <Waves className="w-4 h-4 mr-2" />
+                          Generate Warm Palette
+                        </Button>
+                        <Button 
+                          className="bg-blue-500 hover:bg-blue-600 text-white"
+                          onClick={handleCoolPalette}
+                        >
+                          <Waves className="w-4 h-4 mr-2" />
+                          Generate Cool Palette
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={handleExportPNG}
+                        >
+                          <ImageDown className="w-4 h-4 mr-2" />
+                          Download PNG
+                        </Button>
+                        <Button 
+                          variant="outline"
+                          onClick={handleShareLink}
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Share Link
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -172,7 +227,11 @@ const ToolWorkspace = () => {
                     <p className="text-muted-foreground max-w-md">
                       Upload an image to extract colors or explore existing palettes
                     </p>
-                    <Button size="lg" className="mt-4">
+                    <Button 
+                      size="lg" 
+                      className="mt-4"
+                      onClick={() => setActiveTab("palettes")}
+                    >
                       <Upload className="w-5 h-5 mr-2" />
                       Upload Image
                     </Button>

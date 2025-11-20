@@ -37,6 +37,9 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+                onClick={() => {
+                  document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
                 Try SwatchGen
               </Button>
@@ -44,6 +47,9 @@ const Hero = () => {
                 size="lg" 
                 variant="outline"
                 className="text-lg px-8 py-6 rounded-full border-2 hover:bg-accent hover:scale-105 transition-all duration-300"
+                onClick={() => {
+                  document.getElementById('workspace')?.scrollIntoView({ behavior: 'smooth' });
+                }}
               >
                 <Upload className="w-5 h-5 mr-2" />
                 Upload Image
