@@ -10,6 +10,7 @@ interface UserProfile {
   email: string;
   role: UserRole;
   palettesToday: number;
+  typographyAnalysesToday: number;
   lastReset: string;
 }
 
@@ -60,6 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: profileData.email,
         role: roleData.role as UserRole,
         palettesToday: profileData.palettes_today,
+        typographyAnalysesToday: profileData.typography_analyses_today || 0,
         lastReset: profileData.last_reset,
       });
     } catch (error: any) {

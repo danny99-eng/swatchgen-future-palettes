@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import ImageUpload from "./ImageUpload";
 import ColorSwatch from "./ColorSwatch";
+import TypographyAnalysis from "./TypographyAnalysis";
 import { extractColors, generateWarmPalette, generateCoolPalette, exportPaletteAsPNG, type ColorData } from "@/lib/colorExtraction";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -296,23 +297,7 @@ const ToolWorkspace = () => {
               )}
 
               {activeTab === "typography" && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-semibold">AI Typography Suggestions</h3>
-                  <div className="space-y-4">
-                    <div className="glass-card p-6">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Recommended Headline Font
-                      </p>
-                      <p className="text-4xl font-bold">Inter Bold</p>
-                    </div>
-                    <div className="glass-card p-6">
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Recommended Body Font
-                      </p>
-                      <p className="text-xl">Inter Regular</p>
-                    </div>
-                  </div>
-                </div>
+                <TypographyAnalysis />
               )}
 
               {activeTab === "home" && (

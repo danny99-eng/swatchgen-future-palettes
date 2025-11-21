@@ -1,1 +1,7 @@
 project_id = "peepdopooynqejcfoymn"
+
+[functions.analyze-typography]
+verify_jwt = false
+
+[functions.suggest-fonts]
+verify_jwt = false

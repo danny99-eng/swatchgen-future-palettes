@@ -21,6 +21,7 @@ export type Database = {
           id: string
           last_reset: string
           palettes_today: number
+          typography_analyses_today: number
         }
         Insert: {
           created_at?: string
@@ -28,6 +29,7 @@ export type Database = {
           id: string
           last_reset?: string
           palettes_today?: number
+          typography_analyses_today?: number
         }
         Update: {
           created_at?: string
@@ -35,6 +37,31 @@ export type Database = {
           id?: string
           last_reset?: string
           palettes_today?: number
+          typography_analyses_today?: number
+        }
+        Relationships: []
+      }
+      typography_analyses: {
+        Row: {
+          analysis_result: Json
+          created_at: string
+          id: string
+          image_url: string
+          user_id: string
+        }
+        Insert: {
+          analysis_result: Json
+          created_at?: string
+          id?: string
+          image_url: string
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json
+          created_at?: string
+          id?: string
+          image_url?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -73,6 +100,7 @@ export type Database = {
         Returns: boolean
       }
       reset_palette_count: { Args: never; Returns: undefined }
+      reset_typography_count: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "free" | "premium" | "admin"
