@@ -36,13 +36,51 @@ serve(async (req) => {
 
     console.log('Fetching Google Fonts...');
 
-    // Fetch Google Fonts
+    // Fetch Google Fonts (using public endpoint without API key to avoid rate limits)
     const response = await fetch(
-      `https://www.googleapis.com/webfonts/v1/webfonts?key=${GOOGLE_FONTS_API_KEY}&sort=popularity`
+      'https://www.googleapis.com/webfonts/v1/webfonts?sort=popularity',
+      {
+        headers: {
+          'Accept': 'application/json'
+        }
+      }
     );
 
     if (!response.ok) {
-      throw new Error('Failed to fetch Google Fonts');
+      const errorText = await response.text();
+      console.error('Google Fonts API error:', response.status, errorText);
+      
+      // Use fallback list of popular fonts
+      console.log('Using fallback font list');
+      const fallbackFonts = getFallbackFonts();
+      const matchedFonts = matchFontsToProfile(fallbackFonts, typographyProfile as TypographyProfile);
+      
+      const fontLimit = isPremium ? 6 : 2;
+      const recommendations = matchedFonts.slice(0, fontLimit);
+
+      const pairings = {
+        primary: recommendations[0] || { family: 'Inter', category: 'sans-serif' },
+        body: recommendations[1] || { family: 'Open Sans', category: 'sans-serif' },
+        accent: recommendations[2] || { family: 'Poppins', category: 'sans-serif' },
+        heading: recommendations[3] || { family: 'Montserrat', category: 'sans-serif' },
+        display: recommendations[4] || { family: 'Playfair Display', category: 'serif' },
+        code: recommendations[5] || { family: 'JetBrains Mono', category: 'monospace' }
+      };
+
+      const description = generatePairingDescription(typographyProfile as TypographyProfile, pairings);
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          pairings: isPremium ? pairings : {
+            primary: pairings.primary,
+            body: pairings.body
+          },
+          description,
+          totalMatches: matchedFonts.length
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const data = await response.json();
@@ -156,6 +194,39 @@ function matchFontsToProfile(fonts: any[], profile: TypographyProfile): any[] {
   scored.sort((a, b) => b.score - a.score);
 
   return scored;
+}
+
+function getFallbackFonts(): any[] {
+  // Curated list of popular Google Fonts with their categories
+  return [
+    { family: 'Inter', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Roboto', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Open Sans', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Montserrat', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Poppins', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Lato', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Raleway', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Work Sans', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Nunito', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'DM Sans', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Space Grotesk', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Quicksand', category: 'sans-serif', variants: ['regular', '700'] },
+    { family: 'Playfair Display', category: 'serif', variants: ['regular', '700'] },
+    { family: 'Merriweather', category: 'serif', variants: ['regular', '700'] },
+    { family: 'Lora', category: 'serif', variants: ['regular', '700'] },
+    { family: 'PT Serif', category: 'serif', variants: ['regular', '700'] },
+    { family: 'Crimson Text', category: 'serif', variants: ['regular', '700'] },
+    { family: 'Cormorant Garamond', category: 'serif', variants: ['regular', '700'] },
+    { family: 'Pacifico', category: 'handwriting', variants: ['regular'] },
+    { family: 'Dancing Script', category: 'handwriting', variants: ['regular', '700'] },
+    { family: 'Caveat', category: 'handwriting', variants: ['regular', '700'] },
+    { family: 'JetBrains Mono', category: 'monospace', variants: ['regular', '700'] },
+    { family: 'Fira Code', category: 'monospace', variants: ['regular', '700'] },
+    { family: 'Source Code Pro', category: 'monospace', variants: ['regular', '700'] },
+    { family: 'Bebas Neue', category: 'display', variants: ['regular'] },
+    { family: 'Righteous', category: 'display', variants: ['regular'] },
+    { family: 'Alfa Slab One', category: 'display', variants: ['regular'] }
+  ];
 }
 
 function generatePairingDescription(profile: TypographyProfile, pairings: any): string {
