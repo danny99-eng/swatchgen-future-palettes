@@ -51,7 +51,9 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md p-8 glass-card">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">SwatchGen</h1>
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            SwatchGen
+          </h1>
           <p className="text-muted-foreground">
             {isSignUp ? 'Create your account' : 'Sign in to your account'}
           </p>
