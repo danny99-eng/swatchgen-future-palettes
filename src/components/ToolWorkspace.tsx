@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Palette, Waves, Type, Bookmark, Upload, Share2, ImageDown } from "lucide-react";
+import { Home, Palette, Waves, Type, Bookmark, Upload, Share2, ImageDown, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -7,7 +7,10 @@ import { supabase } from "@/integrations/supabase/client";
 import ImageUpload from "./ImageUpload";
 import ColorSwatch from "./ColorSwatch";
 import TypographyAnalysis from "./TypographyAnalysis";
+import GradientGenerator from "./GradientGenerator";
+import SavedItems from "./SavedItems";
 import { extractColors, generateWarmPalette, generateCoolPalette, exportPaletteAsPNG, type ColorData } from "@/lib/colorExtraction";
+import { GradientData } from "@/lib/gradientExtraction";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import {
@@ -36,6 +39,40 @@ const ToolWorkspace = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  const saveItem = async (itemType: 'palette' | 'typography' | 'gradient', name: string, data: any) => {
+    if (!user) {
+      navigate('/auth');
+      toast.error('Please sign in to save items');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('saved_items')
+        .insert({
+          user_id: user.id,
+          item_type: itemType,
+          name,
+          data
+        });
+
+      if (error) throw error;
+      toast.success(`${name} saved successfully!`);
+    } catch (error) {
+      console.error('Error saving item:', error);
+      toast.error('Failed to save item');
+    }
+  };
+
+  const handleSavePalette = async () => {
+    if (colors.length === 0) {
+      toast.error('No palette to save');
+      return;
+    }
+    const name = `Palette ${new Date().toLocaleDateString()}`;
+    await saveItem('palette', name, { colors });
+  };
 
   const checkPaletteLimit = async () => {
     if (!user || !profile) {
@@ -260,6 +297,13 @@ const ToolWorkspace = () => {
                         </Button>
                         <Button 
                           variant="outline"
+                          onClick={handleSavePalette}
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          Save Palette
+                        </Button>
+                        <Button 
+                          variant="outline"
                           onClick={handleExportPNG}
                         >
                           <ImageDown className="w-4 h-4 mr-2" />
@@ -279,25 +323,23 @@ const ToolWorkspace = () => {
               )}
 
               {activeTab === "gradients" && (
-                <div className="space-y-6">
-                  <h3 className="text-2xl font-semibold">Gradient Generator</h3>
-                  <div className="space-y-4">
-                    <div
-                      className="h-64 rounded-2xl shadow-xl"
-                      style={{
-                        background: "linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)",
-                      }}
-                    />
-                    <div className="flex gap-3">
-                      <Button className="flex-1">Copy CSS</Button>
-                      <Button variant="outline">Customize</Button>
-                    </div>
-                  </div>
-                </div>
+                <GradientGenerator 
+                  colors={colors}
+                  onImageUpload={handleImageUpload}
+                  isProcessing={isProcessing}
+                  onSaveGradient={(gradient: GradientData) => {
+                    saveItem('gradient', gradient.name, gradient);
+                  }}
+                />
               )}
 
               {activeTab === "typography" && (
-                <TypographyAnalysis />
+                <TypographyAnalysis 
+                  onSaveTypography={(pairings: any) => {
+                    const name = `Typography ${new Date().toLocaleDateString()}`;
+                    saveItem('typography', name, { pairings });
+                  }}
+                />
               )}
 
               {activeTab === "home" && (
@@ -321,15 +363,7 @@ const ToolWorkspace = () => {
               )}
 
               {activeTab === "saved" && (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center space-y-4">
-                    <Bookmark className="w-16 h-16 mx-auto text-muted-foreground" />
-                    <h3 className="text-2xl font-semibold">No Saved Palettes</h3>
-                    <p className="text-muted-foreground max-w-md">
-                      Save your favorite palettes to access them quickly
-                    </p>
-                  </div>
-                </div>
+                <SavedItems />
               )}
             </div>
           </div>

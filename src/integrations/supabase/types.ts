@@ -41,6 +41,36 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_items: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          item_type: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data: Json
+          id?: string
+          item_type: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          item_type?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       typography_analyses: {
         Row: {
           analysis_result: Json

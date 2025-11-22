@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Upload, Download, Copy, Sparkles } from "lucide-react";
+import { Upload, Download, Copy, Sparkles, Save } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +19,8 @@ interface TypographyProfile {
   tone: string;
   description: string;
   bestUse: string;
+  exactFont?: string;
+  confidence?: string;
 }
 
 interface FontPairing {
@@ -35,7 +37,11 @@ interface FontSuggestions {
   code?: FontPairing;
 }
 
-const TypographyAnalysis = () => {
+interface TypographyAnalysisProps {
+  onSaveTypography?: (pairings: FontSuggestions) => void;
+}
+
+const TypographyAnalysis = ({ onSaveTypography }: TypographyAnalysisProps) => {
   const { user, profile, refreshProfile } = useAuth();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isFetchingFonts, setIsFetchingFonts] = useState(false);
@@ -256,6 +262,17 @@ ${fontSuggestions.accent ? `Accent: ${fontSuggestions.accent.family}` : ''}`;
             <p className="text-sm text-muted-foreground">Best Use</p>
             <p className="text-foreground mt-1">{typographyProfile.bestUse}</p>
           </div>
+
+          {typographyProfile.exactFont && (
+            <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg">
+              <p className="text-sm font-medium text-primary">Detected Font: {typographyProfile.exactFont}</p>
+              {typographyProfile.confidence && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Confidence: {typographyProfile.confidence}
+                </p>
+              )}
+            </div>
+          )}
         </Card>
       )}
 
@@ -272,6 +289,12 @@ ${fontSuggestions.accent ? `Accent: ${fontSuggestions.accent.family}` : ''}`;
                 <Download className="w-4 h-4 mr-2" />
                 Download JSON
               </Button>
+              {onSaveTypography && (
+                <Button size="sm" variant="outline" onClick={() => onSaveTypography(fontSuggestions)}>
+                  <Save className="w-4 h-4 mr-2" />
+                  Save
+                </Button>
+              )}
             </div>
           </div>
 

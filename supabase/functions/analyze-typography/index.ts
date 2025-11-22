@@ -45,7 +45,7 @@ serve(async (req) => {
             role: 'system',
             content: `You are a typography analysis expert. Analyze the image and identify font characteristics.
             
-IMPORTANT: Detect characteristics, NOT commercial font names (to avoid licensing issues).
+Try to identify the EXACT font if possible. If you can confidently recognize a specific font (like Helvetica, Arial, Times New Roman, Garamond, Futura, etc.), include it in the exactFont field with your confidence level.
 
 Analyze and provide:
 1. Font Style Category: Serif / Sans-Serif / Display / Script / Monospace
@@ -56,6 +56,8 @@ Analyze and provide:
 6. Special Features: Geometric / Humanist / Flares / Curls / Decorative elements
 7. Case Dominance: Uppercase / Lowercase / Mixed
 8. Overall Tone: Modern / Classic / Elegant / Playful / Professional / Artistic
+9. Exact Font (if recognizable): The specific font name if you can identify it
+10. Confidence: Your confidence level in font identification (high/medium/low)
 
 Return your analysis as a JSON object with these exact fields:
 {
@@ -68,7 +70,9 @@ Return your analysis as a JSON object with these exact fields:
   "caseDominance": "Mixed",
   "tone": "Modern",
   "description": "Brief 1-2 sentence description of the typography",
-  "bestUse": "Recommended use cases (e.g., Branding, UI, Body text)"
+  "bestUse": "Recommended use cases (e.g., Branding, UI, Body text)",
+  "exactFont": "Font name if identifiable, or your best guess",
+  "confidence": "high/medium/low"
 }`
           },
           {
@@ -129,9 +133,14 @@ Return your analysis as a JSON object with these exact fields:
                     enum: ['Modern', 'Classic', 'Elegant', 'Playful', 'Professional', 'Artistic']
                   },
                   description: { type: 'string' },
-                  bestUse: { type: 'string' }
+                  bestUse: { type: 'string' },
+                  exactFont: { type: 'string' },
+                  confidence: {
+                    type: 'string',
+                    enum: ['high', 'medium', 'low']
+                  }
                 },
-                required: ['style', 'weight', 'contrast', 'edges', 'width', 'features', 'caseDominance', 'tone', 'description', 'bestUse'],
+                required: ['style', 'weight', 'contrast', 'edges', 'width', 'features', 'caseDominance', 'tone', 'description', 'bestUse', 'confidence'],
                 additionalProperties: false
               }
             }
