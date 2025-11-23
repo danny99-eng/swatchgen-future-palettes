@@ -101,6 +101,11 @@ export const extractColors = async (imageFile: File, colorCount: number = 5): Pr
         for (const [color, count] of sortedColors) {
           const [r, g, b] = color.split(',').map(Number);
           
+          // Validate RGB values
+          if (isNaN(r) || isNaN(g) || isNaN(b) || r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255) {
+            continue;
+          }
+          
           // Check if this color is too similar to already selected colors
           const isSimilar = finalColors.some(existing => {
             const existingRgb = existing.rgb.split(', ').map(Number);
@@ -119,7 +124,28 @@ export const extractColors = async (imageFile: File, colorCount: number = 5): Pr
           if (finalColors.length >= colorCount) break;
         }
 
-        resolve(finalColors);
+        // If we didn't get enough colors, fill with the most frequent ones
+        if (finalColors.length < colorCount && sortedColors.length > 0) {
+          for (const [color, count] of sortedColors) {
+            if (finalColors.length >= colorCount) break;
+            
+            const [r, g, b] = color.split(',').map(Number);
+            if (isNaN(r) || isNaN(g) || isNaN(b)) continue;
+            
+            // Check if we already have this color
+            const exists = finalColors.some(c => c.rgb === `${r}, ${g}, ${b}`);
+            if (!exists) {
+              finalColors.push({
+                hex: rgbToHex(r, g, b),
+                rgb: `${r}, ${g}, ${b}`,
+                name: generateColorName(r, g, b),
+                count
+              });
+            }
+          }
+        }
+
+        resolve(finalColors.length > 0 ? finalColors : []);
       } catch (error) {
         reject(error);
       }

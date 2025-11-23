@@ -231,7 +231,7 @@ const ToolWorkspace = () => {
         <div className="glass-card overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <div className="flex flex-col lg:flex-row min-h-[600px]">
             {/* Sidebar */}
-            <div className="lg:w-64 border-b lg:border-r border-border/50 p-4 bg-white/50">
+            <div className="lg:w-64 border-b lg:border-r border-border/50 p-4 bg-white/50 dark:bg-[hsl(var(--muted))]/30">
               <div className="space-y-2">
                 {navItems.map((item) => (
                   <button

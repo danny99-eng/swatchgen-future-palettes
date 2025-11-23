@@ -56,6 +56,51 @@ All colors MUST be HSL.
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 0 0% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 262 83% 58%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 217 91% 60%;
+
+    /* Custom SwatchGen tokens - Dark Mode */
+    --glass-bg: 222 47% 11% / 0.8;
+    --glass-border: 217 33% 17%;
+    --glow-primary: 217 91% 60% / 0.4;
+    --glow-secondary: 262 83% 58% / 0.4;
+    
+    /* Gradients - Dark Mode */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%));
+    --gradient-subtle: linear-gradient(180deg, hsl(222 47% 11%), hsl(217 33% 20%));
+    
+    /* Shadows - Dark Mode */
+    --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --shadow-glow: 0 0 40px hsl(var(--glow-primary));
+    --shadow-card: 0 4px 24px -1px rgba(0, 0, 0, 0.3);
+  }
 }
 
 @layer base {
@@ -71,11 +116,11 @@ All colors MUST be HSL.
 
 @layer components {
   .glass-card {
-    @apply backdrop-blur-lg bg-white/70 border border-border/50 rounded-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.1)];
+    @apply backdrop-blur-lg bg-white/70 dark:bg-[hsl(var(--glass-bg))] border border-border/50 rounded-2xl shadow-[0_8px_32px_0_rgba(31,38,135,0.1)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.4)];
   }
 
   .glass-button {
-    @apply backdrop-blur-sm bg-white/50 border border-border/50 hover:bg-white/80 transition-all duration-300;
+    @apply backdrop-blur-sm bg-white/50 dark:bg-[hsl(var(--glass-bg))] border border-border/50 hover:bg-white/80 dark:hover:bg-[hsl(var(--muted))] transition-all duration-300;
   }
 
   .glow-primary {
@@ -92,5 +137,59 @@ All colors MUST be HSL.
 
   .smooth-transition {
     transition: var(--transition-smooth);
+  }
+
+  /* Dark mode text readability */
+  .text-readable {
+    @apply text-foreground;
+  }
+
+  .text-readable-muted {
+    @apply text-muted-foreground;
+  }
+
+  /* Theme toggle animations */
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes star-twinkle {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(0.8);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 0.5;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+
+  .animate-star-twinkle {
+    animation: star-twinkle 2s ease-in-out infinite;
+  }
+
+  .animate-pulse-ring {
+    animation: pulse-ring 2s ease-in-out infinite;
   }
 }

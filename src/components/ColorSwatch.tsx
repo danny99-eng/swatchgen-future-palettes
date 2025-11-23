@@ -23,11 +23,14 @@ const ColorSwatch = ({ hex, rgb, name }: ColorSwatchProps) => {
     }
   };
 
+  // Ensure hex is valid
+  const validHex = hex && hex.startsWith('#') ? hex : `#${hex.replace('#', '')}`;
+  
   return (
     <div className="glass-card p-4 space-y-3 hover-lift animate-fade-in">
       <div
         className="h-32 rounded-xl shadow-md transition-transform duration-300 hover:scale-105 cursor-pointer"
-        style={{ backgroundColor: hex }}
+        style={{ backgroundColor: validHex || '#000000' }}
         onClick={() => handleCopy(hex, 'HEX')}
       />
       <div className="space-y-2">
@@ -35,7 +38,7 @@ const ColorSwatch = ({ hex, rgb, name }: ColorSwatchProps) => {
         
         <div className="flex items-center justify-between gap-2">
           <code className="text-sm text-muted-foreground font-mono">
-            {hex}
+            {validHex}
           </code>
           <Button
             size="sm"

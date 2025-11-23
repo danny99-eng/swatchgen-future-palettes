@@ -22,6 +22,10 @@ const GradientGenerator = ({ colors, onImageUpload, isProcessing, onSaveGradient
       const generated = generateGradientsFromColors(colors);
       setGradients(generated);
       setSelectedGradient(generated[0] || null);
+    } else {
+      // Reset gradients when colors are cleared or insufficient
+      setGradients([]);
+      setSelectedGradient(null);
     }
   }, [colors]);
 
@@ -40,8 +44,21 @@ const GradientGenerator = ({ colors, onImageUpload, isProcessing, onSaveGradient
     return (
       <div className="space-y-6">
         <h3 className="text-2xl font-semibold">Gradient Generator</h3>
-        <p className="text-muted-foreground">Upload an image to generate beautiful gradients from its colors.</p>
+        <p className="text-muted-foreground">
+          {colors.length === 0 
+            ? "Upload an image to generate beautiful gradients from its colors."
+            : colors.length === 1
+            ? "Upload an image with more colors to generate gradients (need at least 2 colors)."
+            : "Generating gradients..."}
+        </p>
         <ImageUpload onImageUpload={onImageUpload} isProcessing={isProcessing} />
+        {colors.length > 0 && colors.length < 2 && (
+          <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              You need at least 2 colors to generate gradients. Please upload an image with more diverse colors.
+            </p>
+          </div>
+        )}
       </div>
     );
   }

@@ -1,10 +1,15 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePaystack } from "@/lib/paystack";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const plans = [
   {
     name: "Free",
-    price: "$0",
+    price: "₦0",
     period: "forever",
     features: [
       "Basic palette extraction",
@@ -15,10 +20,11 @@ const plans = [
     ],
     cta: "Get Started",
     popular: false,
+    planId: "free",
   },
   {
     name: "Pro",
-    price: "$12",
+    price: "₦5,000",
     period: "per month",
     features: [
       "Unlimited palette extraction",
@@ -30,12 +36,50 @@ const plans = [
       "Shareable links",
       "Priority support",
     ],
-    cta: "Start Free Trial",
+    cta: "Upgrade to Pro",
     popular: true,
+    planId: "premium",
   },
 ];
 
 const Pricing = () => {
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
+  const { initializePayment } = usePaystack();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePlanClick = async (planId: string) => {
+    if (planId === "free") {
+      if (!user) {
+        navigate("/auth");
+      } else {
+        navigate("/");
+      }
+      return;
+    }
+
+    if (planId === "premium") {
+      if (!user) {
+        navigate("/auth");
+        return;
+      }
+
+      if (profile?.role === "premium" || profile?.role === "admin") {
+        return; // Already premium
+      }
+
+      setIsProcessing(true);
+      try {
+        initializePayment();
+        // Note: isProcessing will be reset when payment modal closes or completes
+        // The payment flow is async, so we don't reset immediately
+      } catch (error) {
+        console.error("Payment error:", error);
+        setIsProcessing(false);
+        toast.error("Failed to initialize payment. Please try again.");
+      }
+    }
+  };
   return (
     <section className="py-24 px-4">
       <div className="container mx-auto max-w-6xl">
@@ -87,14 +131,21 @@ const Pricing = () => {
                 </ul>
 
                 <Button
+                  onClick={() => handlePlanClick(plan.planId)}
+                  disabled={isProcessing || (plan.planId === "premium" && (profile?.role === "premium" || profile?.role === "admin"))}
                   className={cn(
                     "w-full py-6 rounded-full text-lg font-medium transition-all duration-300",
                     plan.popular
                       ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105"
-                      : "bg-accent hover:bg-accent/80 text-accent-foreground"
+                      : "bg-accent hover:bg-accent/80 text-accent-foreground",
+                    (plan.planId === "premium" && (profile?.role === "premium" || profile?.role === "admin")) && "opacity-50 cursor-not-allowed"
                   )}
                 >
-                  {plan.cta}
+                  {isProcessing 
+                    ? "Processing..." 
+                    : plan.planId === "premium" && (profile?.role === "premium" || profile?.role === "admin")
+                    ? "Current Plan"
+                    : plan.cta}
                 </Button>
               </div>
             </div>

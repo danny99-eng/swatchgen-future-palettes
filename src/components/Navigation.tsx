@@ -2,6 +2,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Shield, LogOut, LogIn } from 'lucide-react';
+import ThemeToggle from './ThemeToggle';
 
 const Navigation = () => {
   const { user, profile, signOut } = useAuth();
@@ -14,6 +15,7 @@ const Navigation = () => {
         </Link>
         
         <div className="flex gap-4 items-center">
+          <ThemeToggle />
           {user ? (
             <>
               {profile?.role === 'admin' && (
