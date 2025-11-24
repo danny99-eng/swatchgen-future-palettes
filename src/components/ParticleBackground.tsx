@@ -41,8 +41,8 @@ const ParticleBackground = () => {
     // Create waves with different properties
     for (let i = 0; i < waveCount; i++) {
       const opacity = theme === 'dark' 
-        ? 0.3 - (i * 0.06)  // Higher opacity for dark mode
-        : 0.22 - (i * 0.05); // Lower opacity for light mode
+        ? 0.5 - (i * 0.08)  // Higher opacity for dark mode
+        : 0.35 - (i * 0.06); // Increased opacity for light mode
       
       waves.push({
         amplitude: 80 + i * 50, // Wave height
