@@ -85,8 +85,8 @@ const ToolWorkspace = () => {
       return true;
     }
 
-    // Free users limited to 3 per day
-    if (profile.palettesToday >= 3) {
+    // Free users limited to 7 per day
+    if (profile.palettesToday >= 7) {
       setShowUpgradeModal(true);
       return false;
     }
@@ -197,8 +197,8 @@ const ToolWorkspace = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Upgrade to Premium</AlertDialogTitle>
             <AlertDialogDescription>
-              {profile?.role === 'free' && profile.palettesToday >= 3
-                ? "You've reached your daily limit of 3 palettes. Upgrade to Premium for unlimited palette generation!"
+              {profile?.role === 'free' && profile.palettesToday >= 7
+                ? "You've reached your daily limit of 7 palettes. Upgrade to Premium for unlimited palette generation!"
                 : "This is a premium feature. Upgrade to Premium to unlock unlimited palettes, warm/cool generators, PNG exports, and AI typography suggestions."}
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -222,7 +222,7 @@ const ToolWorkspace = () => {
             {profile && (
               <p className="text-sm text-muted-foreground mt-2">
                 {profile.role === 'free' 
-                  ? `Free Plan: ${profile.palettesToday}/3 palettes used today`
+                  ? `Free Plan: ${profile.palettesToday}/7 palettes used today`
                   : `${profile.role.charAt(0).toUpperCase() + profile.role.slice(1)} Plan: Unlimited`}
               </p>
             )}
