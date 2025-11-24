@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Shield, LogOut, LogIn } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Shield, LogOut, LogIn, Menu } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
 const Navigation = () => {
   const { user, profile, signOut } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card border-b">
@@ -14,7 +17,8 @@ const Navigation = () => {
           SwatchGen
         </Link>
         
-        <div className="flex gap-4 items-center">
+        {/* Desktop Navigation */}
+        <div className="hidden md:flex gap-4 items-center">
           <ThemeToggle />
           {user ? (
             <>
@@ -42,6 +46,48 @@ const Navigation = () => {
               </Button>
             </Link>
           )}
+        </div>
+
+        {/* Mobile Menu */}
+        <div className="flex md:hidden gap-2 items-center">
+          <ThemeToggle />
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[350px]">
+              <div className="flex flex-col gap-4 mt-8">
+                {user ? (
+                  <>
+                    <div className="text-sm text-muted-foreground pb-4 border-b">
+                      {profile?.email}
+                    </div>
+                    {profile?.role === 'admin' && (
+                      <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="outline" className="w-full gap-2">
+                          <Shield className="w-4 h-4" />
+                          Admin Panel
+                        </Button>
+                      </Link>
+                    )}
+                    <Button variant="outline" onClick={() => { signOut(); setMobileMenuOpen(false); }} className="gap-2">
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full gap-2">
+                      <LogIn className="w-4 h-4" />
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>
