@@ -56,8 +56,8 @@ const TypographyAnalysis = ({ onSaveTypography }: TypographyAnalysisProps) => {
       return true;
     }
 
-    if (profile.typographyAnalysesToday >= 2) {
-      toast.error('Free users are limited to 2 analyses per day. Upgrade to Premium for unlimited!');
+    if (profile.typographyAnalysesToday >= 7) {
+      toast.error('Free users are limited to 7 analyses per day. Upgrade to Premium for unlimited!');
       return false;
     }
 
@@ -192,7 +192,7 @@ ${fontSuggestions.accent ? `Accent: ${fontSuggestions.accent.family}` : ''}`;
           {profile && (
             <p className="text-sm text-muted-foreground mt-1">
               {profile.role === 'free' 
-                ? `Free Plan: ${profile.typographyAnalysesToday || 0}/2 analyses used today`
+                ? `Free Plan: ${profile.typographyAnalysesToday || 0}/7 analyses used today`
                 : 'Unlimited analyses'}
             </p>
           )}
