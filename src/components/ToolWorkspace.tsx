@@ -231,14 +231,14 @@ const ToolWorkspace = () => {
         <div className="glass-card overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
           <div className="flex flex-col lg:flex-row min-h-[600px]">
             {/* Sidebar */}
-            <div className="lg:w-64 border-b lg:border-r border-border/50 p-4 bg-white/50 dark:bg-[hsl(var(--muted))]/30">
-              <div className="space-y-2">
+            <div className="w-full lg:w-64 border-b lg:border-r border-border/50 p-4 bg-white/50 dark:bg-[hsl(var(--muted))]/30">
+              <div className="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
                 {navItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
                     className={cn(
-                      "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300",
+                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
                       activeTab === item.id
                         ? "bg-primary text-primary-foreground shadow-lg"
                         : "hover:bg-accent text-foreground"
