@@ -1,40 +1,45 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>SwatchGen - AI-Powered Color Palette Generator</title>
-    <meta name="description" content="Design smarter with instant color intelligence. SwatchGen extracts beautiful palettes, generates gradients, and recommends typography for designers." />
-    <meta name="author" content="SwatchGen" />
 
-    <meta property="og:title" content="SwatchGen - AI-Powered Color Palette Generator" />
-    <meta property="og:description" content="Design smarter with instant color intelligence. Extract palettes, generate gradients, and get AI typography suggestions." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SwatchGen - AI-Powered Color Palette Generator</title>
+  <meta name="description"
+    content="Design smarter with instant color intelligence. SwatchGen extracts beautiful palettes, generates gradients, and recommends typography for designers." />
+  <meta name="author" content="SwatchGen" />
 
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@SwatchGen" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    
-    <link rel="icon" type="image/png" href="/swatch title icon.png" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  </head>
+  <meta property="og:title" content="SwatchGen - AI-Powered Color Palette Generator" />
+  <meta property="og:description"
+    content="Design smarter with instant color intelligence. Extract palettes, generate gradients, and get AI typography suggestions." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/swatch-title-icon.png" />
 
-  <body>
-    <script>
-      // Prevent flash of wrong theme
-      (function() {
-        const theme = localStorage.getItem('theme') || 
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        }
-      })();
-    </script>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@SwatchGen" />
+  <meta name="twitter:image" content="/swatch-title-icon.png" />
+
+  <link rel="icon" type="image/png" href="/swatch-title-icon.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <script>
+    // Prevent flash of wrong theme
+    (function () {
+      const theme = localStorage.getItem('theme') ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
