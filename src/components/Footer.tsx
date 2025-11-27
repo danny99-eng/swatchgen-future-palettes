@@ -64,7 +64,7 @@ const Footer = () => {
         </div>
 
         <div className="pt-8 border-t border-border/50 text-center text-sm text-muted-foreground">
-          <p>© 2025 SwatchGen. All rights reserved. Built with passion for designers.</p>
+          <p>© 2025 SwatchGen. All rights reserved. Built with passion for designers. By Oluyemi Ayomikun @attods</p>
         </div>
       </div>
     </footer>
