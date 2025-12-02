@@ -42,19 +42,25 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Connect</h4>
             <div className="flex gap-3">
               <a
-                href="#"
+                href="https://www.instagram.com/attods?igsh=MTcwbmZ0OW1lYnMyag%3D%3D&utm_source=qr"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-accent hover:bg-primary hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
                 <Instagram className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://www.linkedin.com/in/ayomikun-oluyemi-22b000380?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-accent hover:bg-primary hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
               <a
-                href="#"
+                href="https://x.com/Ayo_designs_"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-10 h-10 rounded-full bg-accent hover:bg-primary hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-110"
               >
                 <Twitter className="w-5 h-5" />

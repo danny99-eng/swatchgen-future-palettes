@@ -43,29 +43,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('id', userId)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        return;
+      }
 
-      // Get role
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .order('role', { ascending: true })
-        .limit(1)
-        .single();
+      // Get role - handle case where it might not exist
+      let role: UserRole = 'free';
+      try {
+        const { data: roleData, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', userId)
+          .order('role', { ascending: true })
+          .limit(1)
+          .single();
 
-      if (roleError) throw roleError;
+        if (!roleError && roleData) {
+          role = roleData.role as UserRole;
+        }
+      } catch (error) {
+        console.warn('Error fetching user role, defaulting to free:', error);
+      }
 
       setProfile({
         id: profileData.id,
         email: profileData.email,
-        role: roleData.role as UserRole,
+        role: role,
         palettesToday: profileData.palettes_today,
         typographyAnalysesToday: profileData.typography_analyses_today || 0,
         lastReset: profileData.last_reset,
       });
     } catch (error: any) {
-      console.error('Error fetching profile:', error);
+      console.error('Error in fetchProfile:', error);
     }
   };
 
@@ -81,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
-        
+
         if (session?.user) {
           setTimeout(() => {
             fetchProfile(session.user.id);
@@ -89,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setProfile(null);
         }
-        
+
         setLoading(false);
       }
     );
@@ -98,11 +108,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user) {
         fetchProfile(session.user.id);
       }
-      
+
       setLoading(false);
     });
 
@@ -136,19 +146,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log("Attempting sign in for:", email);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase sign in error:", error);
+        throw error;
+      }
+
+      console.log("Sign in successful:", data);
 
       toast({
         title: "Welcome back!",
         description: "You've successfully signed in.",
       });
     } catch (error: any) {
+      console.error("Sign in catch block:", error);
       toast({
         title: "Sign in failed",
         description: error.message,

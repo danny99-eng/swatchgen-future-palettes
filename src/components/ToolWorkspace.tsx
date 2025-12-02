@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Palette, Waves, Type, Bookmark, Upload, Share2, ImageDown, Save } from "lucide-react";
+import { Home, Palette, Waves, Type, Bookmark, Upload, Share2, ImageDown, Save, Sparkles, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -9,6 +9,8 @@ import ColorSwatch from "./ColorSwatch";
 import TypographyAnalysis from "./TypographyAnalysis";
 import GradientGenerator from "./GradientGenerator";
 import SavedItems from "./SavedItems";
+import ImageResizerTool from "./ImageResizerTool";
+import { MoodboardGenerator } from "./MoodboardGenerator";
 import { extractColors, generateWarmPalette, generateCoolPalette, exportPaletteAsPNG, type ColorData } from "@/lib/colorExtraction";
 import { GradientData } from "@/lib/gradientExtraction";
 import { toast } from "sonner";
@@ -28,6 +30,8 @@ const navItems = [
   { icon: Palette, label: "Palettes", id: "palettes" },
   { icon: Waves, label: "Gradients", id: "gradients" },
   { icon: Type, label: "Typography AI", id: "typography" },
+  { icon: Minimize2, label: "Image Resizer", id: "imageresizer" },
+  { icon: Sparkles, label: "AI Moodboard", id: "moodboard" },
   { icon: Bookmark, label: "Saved", id: "saved" },
 ];
 
@@ -116,7 +120,7 @@ const ToolWorkspace = () => {
 
     setIsProcessing(true);
     setUploadedImage(file);
-    
+
     try {
       const extractedColors = await extractColors(file, 5);
       setColors(extractedColors);
@@ -221,152 +225,160 @@ const ToolWorkspace = () => {
             </p>
             {profile && (
               <p className="text-sm text-muted-foreground mt-2">
-                {profile.role === 'free' 
+                {profile.role === 'free'
                   ? `Free Plan: ${profile.palettesToday}/7 palettes used today`
                   : `${profile.role.charAt(0).toUpperCase() + profile.role.slice(1)} Plan: Unlimited`}
               </p>
             )}
           </div>
 
-        <div className="glass-card overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-          <div className="flex flex-col lg:flex-row min-h-[600px]">
-            {/* Sidebar */}
-            <div className="w-full lg:w-64 border-b lg:border-r border-border/50 p-4 bg-white/50 dark:bg-[hsl(var(--muted))]/30">
-              <div className="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
-                {navItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
-                      activeTab === item.id
-                        ? "bg-primary text-primary-foreground shadow-lg"
-                        : "hover:bg-accent text-foreground"
+          <div className="glass-card overflow-hidden animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            <div className="flex flex-col lg:flex-row min-h-[600px]">
+              {/* Sidebar */}
+              <div className="w-full lg:w-64 border-b lg:border-r border-border/50 p-4 bg-white/50 dark:bg-[hsl(var(--muted))]/30">
+                <div className="flex lg:flex-col gap-2 overflow-x-auto pb-2 lg:pb-0 no-scrollbar">
+                  {navItems.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={cn(
+                        "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 whitespace-nowrap flex-shrink-0",
+                        activeTab === item.id
+                          ? "bg-primary text-primary-foreground shadow-lg"
+                          : "hover:bg-accent text-foreground"
+                      )}
+                    >
+                      <item.icon className="w-5 h-5" />
+                      <span className="font-medium">{item.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Main Content */}
+              <div className="flex-1 p-8">
+                {activeTab === "palettes" && (
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-2xl font-semibold">Color Palette</h3>
+                    </div>
+
+                    {/* Upload Area */}
+                    <ImageUpload
+                      onImageUpload={handleImageUpload}
+                      isProcessing={isProcessing}
+                    />
+
+                    {/* Color Swatches */}
+                    {colors.length > 0 && (
+                      <>
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                          {colors.map((color, index) => (
+                            <ColorSwatch
+                              key={index}
+                              hex={color.hex}
+                              rgb={color.rgb}
+                              name={color.name}
+                            />
+                          ))}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-wrap gap-3 pt-4">
+                          <Button
+                            className="bg-orange-500 hover:bg-orange-600 text-white"
+                            onClick={handleWarmPalette}
+                          >
+                            <Waves className="w-4 h-4 mr-2" />
+                            Generate Warm Palette
+                          </Button>
+                          <Button
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
+                            onClick={handleCoolPalette}
+                          >
+                            <Waves className="w-4 h-4 mr-2" />
+                            Generate Cool Palette
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={handleSavePalette}
+                          >
+                            <Save className="w-4 h-4 mr-2" />
+                            Save Palette
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={handleExportPNG}
+                          >
+                            <ImageDown className="w-4 h-4 mr-2" />
+                            Download PNG
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={handleShareLink}
+                          >
+                            <Share2 className="w-4 h-4 mr-2" />
+                            Share Link
+                          </Button>
+                        </div>
+                      </>
                     )}
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                ))}
+                  </div>
+                )}
+
+                {activeTab === "gradients" && (
+                  <GradientGenerator
+                    colors={colors}
+                    onImageUpload={handleImageUpload}
+                    isProcessing={isProcessing}
+                    onSaveGradient={(gradient: GradientData) => {
+                      saveItem('gradient', gradient.name, gradient);
+                    }}
+                  />
+                )}
+
+                {activeTab === "typography" && (
+                  <TypographyAnalysis
+                    onSaveTypography={(pairings: any) => {
+                      const name = `Typography ${new Date().toLocaleDateString()}`;
+                      saveItem('typography', name, { pairings });
+                    }}
+                  />
+                )}
+
+                {activeTab === "moodboard" && (
+                  <MoodboardGenerator />
+                )}
+
+                {activeTab === "imageresizer" && (
+                  <ImageResizerTool />
+                )}
+
+                {activeTab === "home" && (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center space-y-4">
+                      <Upload className="w-16 h-16 mx-auto text-muted-foreground" />
+                      <h3 className="text-2xl font-semibold">Start Creating</h3>
+                      <p className="text-muted-foreground max-w-md">
+                        Upload an image to extract colors or explore existing palettes
+                      </p>
+                      <Button
+                        size="lg"
+                        className="mt-4"
+                        onClick={() => setActiveTab("palettes")}
+                      >
+                        <Upload className="w-5 h-5 mr-2" />
+                        Upload Image
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "saved" && (
+                  <SavedItems />
+                )}
               </div>
             </div>
-
-            {/* Main Content */}
-            <div className="flex-1 p-8">
-              {activeTab === "palettes" && (
-                <div className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-2xl font-semibold">Color Palette</h3>
-                  </div>
-
-                  {/* Upload Area */}
-                  <ImageUpload 
-                    onImageUpload={handleImageUpload} 
-                    isProcessing={isProcessing}
-                  />
-
-                  {/* Color Swatches */}
-                  {colors.length > 0 && (
-                    <>
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                        {colors.map((color, index) => (
-                          <ColorSwatch
-                            key={index}
-                            hex={color.hex}
-                            rgb={color.rgb}
-                            name={color.name}
-                          />
-                        ))}
-                      </div>
-
-                      {/* Actions */}
-                      <div className="flex flex-wrap gap-3 pt-4">
-                        <Button 
-                          className="bg-orange-500 hover:bg-orange-600 text-white"
-                          onClick={handleWarmPalette}
-                        >
-                          <Waves className="w-4 h-4 mr-2" />
-                          Generate Warm Palette
-                        </Button>
-                        <Button 
-                          className="bg-blue-500 hover:bg-blue-600 text-white"
-                          onClick={handleCoolPalette}
-                        >
-                          <Waves className="w-4 h-4 mr-2" />
-                          Generate Cool Palette
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          onClick={handleSavePalette}
-                        >
-                          <Save className="w-4 h-4 mr-2" />
-                          Save Palette
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          onClick={handleExportPNG}
-                        >
-                          <ImageDown className="w-4 h-4 mr-2" />
-                          Download PNG
-                        </Button>
-                        <Button 
-                          variant="outline"
-                          onClick={handleShareLink}
-                        >
-                          <Share2 className="w-4 h-4 mr-2" />
-                          Share Link
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "gradients" && (
-                <GradientGenerator 
-                  colors={colors}
-                  onImageUpload={handleImageUpload}
-                  isProcessing={isProcessing}
-                  onSaveGradient={(gradient: GradientData) => {
-                    saveItem('gradient', gradient.name, gradient);
-                  }}
-                />
-              )}
-
-              {activeTab === "typography" && (
-                <TypographyAnalysis 
-                  onSaveTypography={(pairings: any) => {
-                    const name = `Typography ${new Date().toLocaleDateString()}`;
-                    saveItem('typography', name, { pairings });
-                  }}
-                />
-              )}
-
-              {activeTab === "home" && (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center space-y-4">
-                    <Upload className="w-16 h-16 mx-auto text-muted-foreground" />
-                    <h3 className="text-2xl font-semibold">Start Creating</h3>
-                    <p className="text-muted-foreground max-w-md">
-                      Upload an image to extract colors or explore existing palettes
-                    </p>
-                    <Button 
-                      size="lg" 
-                      className="mt-4"
-                      onClick={() => setActiveTab("palettes")}
-                    >
-                      <Upload className="w-5 h-5 mr-2" />
-                      Upload Image
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {activeTab === "saved" && (
-                <SavedItems />
-              )}
-            </div>
-          </div>
           </div>
         </div>
       </section>

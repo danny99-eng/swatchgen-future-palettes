@@ -16,7 +16,7 @@ const Navigation = () => {
         <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
           SwatchGen
         </Link>
-        
+
         {/* Desktop Navigation */}
         <div className="hidden md:flex gap-4 items-center">
           <ThemeToggle />

@@ -1,4 +1,4 @@
-import { Image, Thermometer, Waves, Share2, ImageDown, Sparkles } from "lucide-react";
+import { Image, Thermometer, Waves, Share2, ImageDown, Sparkles, Minimize2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const features = [
@@ -101,6 +101,51 @@ const features = [
           <p className="text-xs text-muted-foreground mb-1">Recommended Body</p>
           <p className="text-lg">Inter Regular</p>
         </div>
+      </div>
+    ),
+  },
+  {
+    icon: Sparkles,
+    title: "AI Moodboard Generator",
+    description: "Generate complete moodboards with AI-powered images, color palettes, and typography suggestions from text prompts.",
+    demo: (
+      <div className="space-y-3">
+        <div className="glass-card p-4">
+          <input
+            type="text"
+            placeholder="e.g., Minimalist tropical luxury"
+            className="w-full p-2 text-sm rounded-lg border border-border bg-background/50"
+            disabled
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          {['#00C9A7', '#845EC2', '#FF6F91', '#FFC75F'].map((color, i) => (
+            <div key={i} className="aspect-square rounded-lg shadow-sm" style={{ backgroundColor: color }} />
+          ))}
+        </div>
+        <Button className="w-full bg-gradient-to-r from-primary to-secondary">
+          <Sparkles className="w-4 h-4 mr-2" />
+          Generate Moodboard
+        </Button>
+      </div>
+    ),
+  },
+  {
+    icon: Minimize2,
+    title: "Image Resizer & Compressor",
+    description: "Upload any image and instantly reduce file size or resize dimensions without losing clarity.",
+    demo: (
+      <div className="space-y-3">
+        <div className="flex gap-2 items-center justify-center h-20 border-2 border-dashed border-border rounded-xl bg-muted/30">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Original: 2.5MB</p>
+            <ArrowRight className="w-4 h-4 mx-auto my-1 text-muted-foreground" />
+            <p className="text-xs text-green-500 font-bold">Optimized: 450KB</p>
+          </div>
+        </div>
+        <Button className="w-full" asChild>
+          <a href="/tools/image-resizer">Open Tool</a>
+        </Button>
       </div>
     ),
   },

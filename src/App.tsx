@@ -10,9 +10,11 @@ import ParticleBackground from "@/components/ParticleBackground";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+// import Moodboard from "./pages/Moodboard";
 import NotFound from "./pages/NotFound";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailed from "./pages/PaymentFailed";
+import ImageResizer from "./pages/ImageResizer";
 
 const queryClient = new QueryClient();
 
@@ -29,8 +31,10 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/admin" element={<Admin />} />
+              {/* <Route path="/moodboard" element={<Moodboard />} /> */}
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/failed" element={<PaymentFailed />} />
+              <Route path="/tools/image-resizer" element={<ImageResizer />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
