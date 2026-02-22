@@ -111,7 +111,7 @@ const Auth = () => {
             {isLoading ? 'Processing...' : isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
 
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <button
               type="button"
               onClick={() => {
@@ -120,12 +120,22 @@ const Auth = () => {
                 setPassword('');
                 setConfirmPassword('');
               }}
-              className="text-sm text-primary hover:underline"
+              className="text-sm text-primary hover:underline block w-full"
             >
               {isSignUp
                 ? 'Already have an account? Sign in'
                 : "Don't have an account? Sign up"}
             </button>
+
+            {!isSignUp && (
+              <button
+                type="button"
+                onClick={() => navigate('/forgot-password')}
+                className="text-sm text-muted-foreground hover:text-primary transition-colors block w-full"
+              >
+                Forgot your password?
+              </button>
+            )}
           </div>
         </form>
       </Card>

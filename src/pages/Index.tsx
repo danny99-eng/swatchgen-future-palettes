@@ -1,5 +1,5 @@
 import Navigation from "@/components/Navigation";
-import Hero from "@/components/Hero";
+import SplineSceneThemed from "@/components/SplineSceneThemed";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
 import ToolWorkspace from "@/components/ToolWorkspace";
@@ -12,7 +12,7 @@ const Index = () => {
     <div className="min-h-screen bg-background/80">
       <Navigation />
       <div className="w-full mx-auto">
-        <Hero />
+        <SplineSceneThemed />
         <HowItWorks />
         <Features />
         <ToolWorkspace />
