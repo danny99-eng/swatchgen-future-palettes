@@ -31,9 +31,14 @@ export default function ForgotPassword() {
         }
 
         try {
+            // Debugging the site URL resolution
+            const siteUrl = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, "");
+            console.log("Reset password redirecting to:", `${siteUrl}/reset-password`);
+
             const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: `${window.location.origin}/reset-password`,
+                redirectTo: `${siteUrl}/reset-password`,
             });
+
 
             if (error) {
                 throw error;
