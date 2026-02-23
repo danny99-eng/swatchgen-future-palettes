@@ -5,10 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 export default function ForgotPassword() {
-    const { toast } = useToast();
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -35,16 +33,10 @@ export default function ForgotPassword() {
         try {
             // Debugging the site URL resolution
             const siteUrl = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/$/, "");
-            const finalRedirectUrl = `${siteUrl}/reset-password`;
 
-            console.log("Reset password redirecting to:", finalRedirectUrl);
-            toast({
-                title: "Sending request",
-                description: `Requesting redirect to: ${finalRedirectUrl}`,
-            });
 
             const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-                redirectTo: finalRedirectUrl,
+                redirectTo: `${siteUrl}/reset-password`,
             });
 
             if (resetError) {

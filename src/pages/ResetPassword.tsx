@@ -76,7 +76,7 @@ export default function ResetPassword() {
 
             // Redirect after a short delay
             setTimeout(() => {
-                navigate("/login");
+                navigate("/auth");
             }, 2000);
 
         } catch (err: any) {
